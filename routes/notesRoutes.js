@@ -30,5 +30,9 @@ notes.post('/', (req,res) => {
 
 // DELETE route for deleting a note
 notes.delete('/:id', (req,res) => {
-    
+    const noteId = req.params.id
+    deleteNote('./db/db.json', noteId)
+    readFromFile('./db/db.json').then((data) => res.json(JSON.parse(data)))
 })
+
+module.exports = notes
