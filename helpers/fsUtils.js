@@ -1,13 +1,6 @@
-const notes = require('express').Router();
-const {v4: uuidv4} = require('uuid');
-const { readFromFile, readAndAppend, writeToFile} = rquire('../helpers/fsUtils');
+const fs = require('fs');
+const {parse} = require('path');
 
-// GET route to retrieve notes
+const readFromFile= util.promisify(fs.readFile);
 
-// POST route for new notes
-
-// DELETE route for deleting a note
-
-
-
-module.exports = notes;
+@param {string}
