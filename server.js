@@ -3,17 +3,15 @@ const express = require('express');
 const app = express();
 const fs = require('fs');
 const path = require('path');
-const indexRoutes = require('./routes/index');
-const notesRoutes = require('./routes/notesRoutes')
+const api = require('./public')
 
 app.use(express.json());
 app.use(express.urlencoded({
     extended: true
 }));
+app.use('/notes', api)
 
 app.use(express.json());
-app.use('/api', notesRoutes);
-app.use('/', indexRoutes);
 app.use(express.static('public'));
 
 app.listen(PORT, () => {
@@ -27,14 +25,16 @@ app.get('/', (req, res) => {
 app.get('/notes', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'notes.html'));
   });
-  
+
+app.use(express.static(path.join(__dirname, 'public')));
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Create a get route for 
 app.get('/api/notes', (req, res) => {
     fs.readFile('db/db.json', 'utf8', function(err, contents) {
-      var notes = JSON.parse(contents);
-      res.send(notes);
+      var note = JSON.parse(contents);
+      res.send(note);
     });
   });
 
@@ -47,7 +47,7 @@ app.post('/api/notes', (req, res) => {
       let note = {
         title: req.body.title,
         text: req.body.text,
-        id: uuidv1()
+        id: uuidv4()
       }
       json.push(note);
   
@@ -58,3 +58,23 @@ app.post('/api/notes', (req, res) => {
     });
   });
 
+// Create a DELETE route for notes
+app.delete('/api/notes/:id', (req, res) => {
+
+    fs.readFile('db/db.json',(err, data) => {
+      if (err) throw err;
+      let id = req.params.id;
+      let json = JSON.parse(data);
+      json.forEach((item, i) =>{
+        if (item.id.includes(id)){
+          json.splice(i, 1);       
+        }
+      });
+  
+      fs.writeFile('db/db.json', JSON.stringify(json, null, 2), (err) => {
+        if (err) throw err;
+        res.send('200');
+      });
+    });
+  
+  })
